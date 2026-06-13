@@ -61,11 +61,11 @@ export function Hero() {
       <div className="mx-auto flex max-w-5xl flex-col items-center px-4 pt-20 pb-16 text-center sm:px-6 sm:pt-28">
         <span className="inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-brand-orange/10 px-4 py-1.5 text-sm text-brand-orange">
           <Sparkles className="size-3.5" />
-          AI-powered career launchpad for Africa
+          AI-powered career launchpad for students worldwide
         </span>
 
         <h1 className="mt-7 text-pretty text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
-          Land Your First Job in Africa &amp; Beyond
+          Land Your First Job, Anywhere in the World
         </h1>
 
         <p className="mt-6 text-xl font-semibold sm:text-2xl">
@@ -77,9 +77,9 @@ export function Hero() {
         </p>
 
         <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-          AfriLaunch reads your resume, scores it like a real ATS, matches you to
+          Glaunch reads your resume, scores it like a real ATS, matches you to
           internships and entry-level roles, and coaches you through interviews —
-          all powered by AI built for African students and graduates.
+          all powered by AI built for students and graduates everywhere.
         </p>
 
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">

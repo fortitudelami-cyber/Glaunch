@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { GraduationCap, Briefcase, Loader2, Upload } from 'lucide-react'
 import { toast } from 'sonner'
-import { AFRICAN_COUNTRIES } from '@/lib/countries'
+import { COUNTRIES } from '@/lib/countries'
 import { cn } from '@/lib/utils'
 
 type Role = 'student' | 'recruiter'
@@ -111,7 +111,7 @@ export function OnboardingForm({
         const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Could not save your profile')
       }
-      toast.success('Profile saved. Welcome to AfriLaunch.')
+      toast.success('Profile saved. Welcome to Glaunch.')
       router.push('/dashboard')
       router.refresh()
     } catch (err) {
@@ -188,7 +188,7 @@ export function OnboardingForm({
           className={inputClass}
         >
           <option value="">Select your country</option>
-          {AFRICAN_COUNTRIES.map((c) => (
+                {COUNTRIES.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
