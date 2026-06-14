@@ -1,33 +1,49 @@
 # Glaunch
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+Glaunch is a student-focused career platform built with Next.js, Clerk authentication, and DynamoDB. It includes onboarding, resume analysis, AI-powered job matching, interview coaching, and live job syncing.
 
-## Built with v0
+## Key features
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+- User onboarding with profile completion checks and onboarding redirect middleware
+- Searchable university picker during onboarding
+- Resume analysis with AI-assisted JSON output and profile scoring
+- Job match generation with AI and deduplicated live job sync from Remotive and Jobicy
+- Interview question generation and answer scoring
+- OpenRouter fallback for AI requests when Bedrock is unavailable
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_Rg7JeH6aoXMjZuQhdEM7LaZcmoLC)
+## Local development
 
-## Getting Started
-
-First, run the development server:
+Install dependencies and run the dev server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-## Learn More
+The app uses these environment variables:
 
-To learn more, take a look at the following resources:
+- `DYNAMODB_TABLE_NAME` — DynamoDB table name
+- `AWS_REGION` — AWS region (defaults to `us-east-1`)
+- `AWS_ROLE_ARN` — optional AWS role ARN for Vercel OIDC credentials
+- `OPENROUTER_API_KEY` — API key for OpenRouter fallback
+- `NEXT_PUBLIC_APP_URL` — public app URL for internal API calls (optional)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+## Important routes
+
+- `POST /api/user/onboarding` — create or update user onboarding profile
+- `GET /api/user/profile` — profile status used by middleware
+- `POST /api/resume/analyze` — analyze uploaded resume via AI
+- `POST /api/matches/generate` — generate job matches for the user
+- `POST /api/interview/questions` — generate interview questions
+- `POST /api/interview/score` — score interview answers
+- `POST /api/jobs/sync` — sync live jobs from external sources
+
+## Notes
+
+- The onboarding flow redirects users to `/onboarding` until `profileComplete` reaches the required threshold.
+- The AI layer first attempts AWS Bedrock, then OpenRouter free tier, and finally uses local deterministic fallbacks.
+- Live jobs are fetched from Remotive and Jobicy and deduplicated by URL.
