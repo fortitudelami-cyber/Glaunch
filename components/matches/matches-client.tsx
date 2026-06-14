@@ -7,7 +7,6 @@ import {
   ExternalLink,
   Loader2,
   RefreshCw,
-  Sparkles,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -134,7 +133,7 @@ export function MatchesClient({
         <MatchSkeletons />
       ) : visible.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-          <Sparkles className="mx-auto h-8 w-8 text-brand-orange" />
+          <div className="mx-auto mb-2 h-8 w-8 text-brand-orange flex items-center justify-center">•</div>
           <p className="mt-3 font-semibold">No matches at this threshold</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Try a lower filter or refresh to generate new matches.

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { GraduationCap, Briefcase, Loader2, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { COUNTRIES } from '@/lib/countries'
+import UniversitySelect from '@/components/UniversitySelect'
 import { cn } from '@/lib/utils'
 
 type Role = 'student' | 'recruiter'
@@ -102,8 +103,8 @@ export function OnboardingForm({
               profileComplete: 50,
             }
 
-      const res = await fetch('/api/user/profile', {
-        method: 'PATCH',
+      const res = await fetch('/api/user/onboarding', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
@@ -202,13 +203,7 @@ export function OnboardingForm({
             <label className="text-sm font-medium" htmlFor="university">
               University
             </label>
-            <input
-              id="university"
-              value={university}
-              onChange={(e) => setUniversity(e.target.value)}
-              className={inputClass}
-              placeholder="e.g. University of Toronto"
-            />
+            <UniversitySelect id="university" value={university} onChange={setUniversity} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">

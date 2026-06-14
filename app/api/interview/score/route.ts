@@ -1,5 +1,5 @@
 import { getUserId, unauthorized } from '@/lib/api-auth'
-import { invokeModel, parseModelJSON, BedrockUnavailableError } from '@/lib/bedrock'
+import { invokeAI, parseModelJSON } from '@/lib/ai'
 import type { InterviewScore } from '@/lib/types'
 
 export const runtime = 'nodejs'
@@ -28,13 +28,10 @@ Answer: ${answer.slice(0, 4000)}`
 
     let result: InterviewScore
     try {
-      const raw = await invokeModel(prompt, undefined, 1500)
+      const raw = await invokeAI(prompt, 'score')
       result = parseModelJSON<InterviewScore>(raw)
     } catch (err) {
-      if (err instanceof BedrockUnavailableError) {
-        return Response.json({ error: err.message }, { status: 503 })
-      }
-      throw err
+      return Response.json({ error: (err as Error).message || 'AI failed' }, { status: 503 })
     }
 
     return Response.json({

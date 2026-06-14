@@ -77,7 +77,7 @@ export function Hero() {
         </a>
 
         <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-brand-orange/10 px-4 py-1.5 text-sm text-brand-orange">
-          AI-powered career launchpad for students worldwide
+          AI-powered career platform
         </span>
 
         <h1 className="mt-7 text-pretty text-5xl font-black leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">

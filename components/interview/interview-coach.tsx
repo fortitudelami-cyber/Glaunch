@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   RotateCcw,
   ChevronRight,
-  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -168,7 +167,7 @@ export function InterviewCoach({ matches }: { matches: MatchRecord[] }) {
   if (matches.length === 0) {
     return (
       <Card className="border-border/60 bg-card p-10 text-center">
-        <Sparkles className="mx-auto mb-4 size-8 text-brand-orange" />
+        <div className="mx-auto mb-4 size-8 flex h-8 w-8 items-center justify-center text-brand-orange">•</div>
         <h2 className="text-xl font-bold">No roles to practice yet</h2>
         <p className="mx-auto mt-2 max-w-md text-muted-foreground">
           Generate job matches first, then come back to practice role-specific

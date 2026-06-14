@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthedUser, unauthorized } from '@/lib/api-auth'
-import { invokeModel, parseModelJSON, BedrockUnavailableError } from '@/lib/bedrock'
+import { invokeAI, parseModelJSON } from '@/lib/ai'
 import { putResume, updateUser, getUser, putUser } from '@/lib/data'
 import type { ResumeAnalysis, ResumeRecord, UserRecord } from '@/lib/types'
 
@@ -80,13 +80,10 @@ Resume text: ${rawText.slice(0, 12000)}`
 
     let analysis: ResumeAnalysis
     try {
-      const raw = await invokeModel(prompt, SYSTEM, 3000)
+      const raw = await invokeAI(prompt, 'resume')
       analysis = parseModelJSON<ResumeAnalysis>(raw)
     } catch (err) {
-      if (err instanceof BedrockUnavailableError) {
-        return Response.json({ error: err.message }, { status: 503 })
-      }
-      throw err
+      return Response.json({ error: (err as Error).message || 'AI failed' }, { status: 503 })
     }
 
     const resumeId = uuidv4()
