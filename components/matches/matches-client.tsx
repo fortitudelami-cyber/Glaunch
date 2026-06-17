@@ -8,6 +8,7 @@ import {
   Loader2,
   RefreshCw,
   Sparkles,
+  Search,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -43,6 +44,7 @@ export function MatchesClient({
   )
   const [filter, setFilter] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [syncingJobs, setSyncingJobs] = useState(false)
   const [applied, setApplied] = useState<Set<string>>(new Set(appliedJobIds))
   const [applyingId, setApplyingId] = useState<string | null>(null)
 
@@ -67,6 +69,23 @@ export function MatchesClient({
       generate()
     }
   }, [initialMatches.length, generate])
+
+  async function syncJobs() {
+    setSyncingJobs(true)
+    try {
+      const res = await fetch('/api/jobs/sync', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Could not sync jobs')
+      toast.success(
+        `Found ${data.synced ?? 0} new jobs matching your profile`,
+      )
+      await generate()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to sync jobs')
+    } finally {
+      setSyncingJobs(false)
+    }
+  }
 
   async function autoApply(m: Match) {
     setApplyingId(m.jobId)
@@ -115,20 +134,45 @@ export function MatchesClient({
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={generate}
-          disabled={loading}
-          className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:border-brand-orange disabled:opacity-50"
-        >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
-          Refresh matches
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={syncJobs}
+            disabled={syncingJobs || loading}
+            className="flex items-center gap-2 rounded-lg bg-brand-orange px-3 py-1.5 text-sm font-semibold text-brand-orange-foreground transition-colors hover:bg-brand-orange/90 disabled:opacity-50"
+          >
+            {syncingJobs ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="h-4 w-4" />
+            )}
+            Find Fresh Jobs
+          </button>
+          <button
+            type="button"
+            onClick={generate}
+            disabled={loading}
+            className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:border-brand-orange disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            Refresh matches
+          </button>
+        </div>
       </div>
+
+      {syncingJobs && (
+        <div className="rounded-2xl border border-brand-orange/30 bg-brand-orange/5 p-4 text-sm text-brand-orange">
+          Tinyfish is searching job sites for you<span className="inline-flex gap-1 pl-1">
+            <span className="animate-bounce [animation-delay:-0.2s]">.</span>
+            <span className="animate-bounce [animation-delay:-0.1s]">.</span>
+            <span className="animate-bounce">.</span>
+          </span>
+        </div>
+      )}
 
       {loading && matches.length === 0 ? (
         <MatchSkeletons />

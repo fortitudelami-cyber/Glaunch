@@ -2,7 +2,7 @@ import {
   BedrockRuntimeClient,
   InvokeModelCommand,
 } from '@aws-sdk/client-bedrock-runtime'
-import { awsCredentialsProvider } from '@vercel/functions/oidc'
+import { fromEnv } from '@aws-sdk/credential-providers'
 
 const REGION = process.env.AWS_REGION ?? 'us-east-1'
 const MODEL_ID = 'anthropic.claude-3-sonnet-20240229-v1:0'
@@ -11,17 +11,16 @@ let client: BedrockRuntimeClient | null = null
 
 function getBedrock(): BedrockRuntimeClient {
   if (client) return client
-  client = new BedrockRuntimeClient({
+
+  const config: { region: string; credentials?: ReturnType<typeof fromEnv> } = {
     region: REGION,
-    ...(process.env.AWS_ROLE_ARN
-      ? {
-          credentials: awsCredentialsProvider({
-            roleArn: process.env.AWS_ROLE_ARN,
-            clientConfig: { region: REGION },
-          }),
-        }
-      : {}),
-  })
+  }
+
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    config.credentials = fromEnv()
+  }
+
+  client = new BedrockRuntimeClient(config)
   return client
 }
 

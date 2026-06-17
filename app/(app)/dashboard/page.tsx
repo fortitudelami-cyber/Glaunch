@@ -8,9 +8,23 @@ import {
   MessageSquare,
   ArrowUpRight,
   TrendingUp,
+  Activity,
 } from 'lucide-react'
 import { getUser, getMatches, getApplications, getSessions } from '@/lib/data'
 import { cn } from '@/lib/utils'
+
+async function getHealthStatus() {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/health`,
+      { cache: 'no-store' },
+    )
+    if (!response.ok) return null
+    return response.json()
+  } catch {
+    return null
+  }
+}
 
 const STATUS_STYLES: Record<string, string> = {
   applied: 'bg-brand-green/15 text-brand-green',
@@ -22,11 +36,12 @@ export default async function DashboardPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  const [user, matches, applications, sessions] = await Promise.all([
+  const [user, matches, applications, sessions, health] = await Promise.all([
     getUser(userId),
     getMatches(userId),
     getApplications(userId),
     getSessions(userId),
+    getHealthStatus(),
   ])
 
   const firstName = (user?.fullName || 'there').split(' ')[0]
@@ -38,6 +53,13 @@ export default async function DashboardPage() {
     { label: 'Total Matches', value: matches.length, icon: Target },
     { label: 'Applications Sent', value: applications.length, icon: Send },
     { label: 'Interview Sessions', value: sessions.length, icon: MessageSquare },
+  ]
+
+  const isAdmin = user?.role === 'recruiter'
+  const healthItems = [
+    { key: 'dynamodb', label: 'DynamoDB' },
+    { key: 'bedrock', label: 'Bedrock' },
+    { key: 'tinyfish', label: 'Tinyfish' },
   ]
 
   const actions = [
@@ -80,6 +102,60 @@ export default async function DashboardPage() {
           )
         })}
       </div>
+
+      {isAdmin && (
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground">
+                Service Health
+              </p>
+              <h2 className="mt-1 text-lg font-bold">Platform status</h2>
+            </div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-sm font-medium">
+              <Activity className="h-4 w-4" />
+              Admin
+            </span>
+          </div>
+          <div className="mt-4 flex flex-col gap-3">
+            {healthItems.map((item) => {
+              const isOk = health?.[item.key]?.startsWith('ok')
+              return (
+                <div
+                  key={item.key}
+                  className="flex items-center justify-between rounded-lg border border-border p-3"
+                >
+                  <span className="font-medium">{item.label}</span>
+                  <span
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-sm font-semibold',
+                      isOk
+                        ? 'bg-brand-green/15 text-brand-green'
+                        : 'bg-destructive/15 text-destructive',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'h-2 w-2 rounded-full',
+                        isOk ? 'bg-brand-green' : 'bg-destructive',
+                      )}
+                    />
+                    {health?.[item.key] || 'Unknown'}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+          <a
+            href="/api/health"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex items-center text-sm font-semibold text-brand-orange hover:underline"
+          >
+            Run Health Check
+          </a>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Top matched jobs */}

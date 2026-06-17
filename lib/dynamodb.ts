@@ -7,34 +7,36 @@ import {
   UpdateCommand,
   ScanCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { awsCredentialsProvider } from '@vercel/functions/oidc'
+import { fromEnv } from '@aws-sdk/credential-providers'
 
 export const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME as string
 const REGION = process.env.AWS_REGION ?? 'us-east-1'
 
 let docClient: DynamoDBDocumentClient | null = null
 
+function getDynamoClient() {
+  const config: any = {
+    region: REGION,
+  }
+
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    config.credentials = fromEnv()
+  }
+
+  return new DynamoDBClient(config)
+}
+
+export const db = getDynamoClient()
+
 /**
  * Returns a singleton DynamoDB DocumentClient.
- * Authenticates with AWS using Vercel OIDC role credentials (AWS_ROLE_ARN).
- * Falls back to the default AWS credential chain when AWS_ROLE_ARN is absent.
+ * Uses explicit local credentials when present and otherwise relies on the
+ * default AWS credential chain (including Vercel OIDC).
  */
 export function getClient(): DynamoDBDocumentClient {
   if (docClient) return docClient
 
-  const client = new DynamoDBClient({
-    region: REGION,
-    ...(process.env.AWS_ROLE_ARN
-      ? {
-          credentials: awsCredentialsProvider({
-            roleArn: process.env.AWS_ROLE_ARN,
-            clientConfig: { region: REGION },
-          }),
-        }
-      : {}),
-  })
-
-  docClient = DynamoDBDocumentClient.from(client, {
+  docClient = DynamoDBDocumentClient.from(db, {
     marshallOptions: { removeUndefinedValues: true },
   })
 
