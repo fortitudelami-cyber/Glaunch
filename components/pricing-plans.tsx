@@ -6,6 +6,7 @@ import { useAuth } from '@clerk/nextjs'
 import { Check, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { CouponRedeem } from '@/components/coupon/coupon-redeem'
 
 type Plan = {
   id: 'free' | 'premium' | 'recruiter'
@@ -69,6 +70,7 @@ export function PricingPlans() {
   const router = useRouter()
   const { isSignedIn } = useAuth()
   const [loading, setLoading] = useState<string | null>(null)
+  const [showCoupon, setShowCoupon] = useState<string | null>(null)
 
   async function handleSelect(plan: Plan) {
     if (plan.id === 'free') {
@@ -81,22 +83,8 @@ export function PricingPlans() {
       return
     }
 
-    setLoading(plan.id)
-    try {
-      const res = await fetch('/api/payments/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: plan.id }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.url) {
-        throw new Error(data.error || 'Could not start checkout')
-      }
-      window.location.href = data.url
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Checkout failed')
-      setLoading(null)
-    }
+    // Paid plans are unlocked via coupon (SAFEHAVEN), not checkout.
+    setShowCoupon(showCoupon === plan.id ? null : plan.id)
   }
 
   return (
@@ -154,6 +142,12 @@ export function PricingPlans() {
               plan.cta
             )}
           </button>
+          {showCoupon === plan.id && plan.id !== 'free' && (
+            <div className="mt-4">
+              <CouponRedeem />
+              <p className="mt-2 text-xs text-muted-foreground">Have a coupon code? Enter it to unlock premium access.</p>
+            </div>
+          )}
         </div>
       ))}
     </div>
