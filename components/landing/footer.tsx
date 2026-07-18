@@ -97,7 +97,6 @@ export function Footer() {
               v0
             </span>
             <span className="text-xs font-medium text-muted-foreground">
-              Built for the v0 × AWS Hackathon
             </span>
           </div>
           <p className="font-mono text-sm text-brand-orange">

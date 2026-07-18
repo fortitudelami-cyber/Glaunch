@@ -128,7 +128,7 @@ export async function queryGSI<T = Record<string, unknown>>(
 /**
  * Scan the whole table for items of a given entity type (e.g. "APPLICATION",
  * "MATCH", "USER"). Used by the recruiter dashboard to aggregate across all
- * students. Paginates through every page. Fine for hackathon-scale data; for
+ * students. Paginates through every page. Fine for current data scale; for
  * production you'd back these views with a dedicated GSI.
  */
 export async function scanByEntity<T = Record<string, unknown>>(

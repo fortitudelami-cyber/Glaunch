@@ -72,7 +72,6 @@ export function Hero() {
           <span className="inline-flex h-5 items-center rounded-full bg-foreground px-1.5 font-mono text-[10px] font-bold text-background">
             v0
           </span>
-          Built for the v0 × AWS Hackathon
           <span className="text-brand-orange">→</span>
         </a>
 

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthedUser, unauthorized } from '@/lib/api-auth'
 import { invokeModel, parseModelJSON, BedrockUnavailableError } from '@/lib/bedrock'
+import { computeAtsScore } from '@/lib/ats-score'
 import { putResume, updateUser, getUser, putUser } from '@/lib/data'
 import type { ResumeAnalysis, ResumeRecord, UserRecord } from '@/lib/types'
 
@@ -83,10 +84,14 @@ Resume text: ${rawText.slice(0, 12000)}`
       const raw = await invokeModel(prompt, SYSTEM, 3000)
       analysis = parseModelJSON<ResumeAnalysis>(raw)
     } catch (err) {
+      // AI unavailable: fall back to a REAL heuristic score computed from the
+      // actual resume text (varied per CV) instead of failing or a constant.
       if (err instanceof BedrockUnavailableError) {
-        return Response.json({ error: err.message }, { status: 503 })
+        const h = computeAtsScore(rawText)
+        analysis = { ...h, rewrite: { summary: '', experience: [], skills: [] } } as ResumeAnalysis
+      } else {
+        throw err
       }
-      throw err
     }
 
     const resumeId = uuidv4()
